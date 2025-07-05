@@ -1,0 +1,6 @@
+@Eventra.EmailMicroservice.API_HostAddress = http://localhost:5265
+
+GET {{Eventra.EmailMicroservice.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
