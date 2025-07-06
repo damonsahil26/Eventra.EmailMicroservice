@@ -1,8 +1,10 @@
+using Eventra.EmailMicroservice.API.Consumers;
 using Eventra.EmailMicroservice.API.Persistance;
 using Eventra.EmailMicroservice.API.Repositories;
 using Eventra.EmailMicroservice.API.Repositories.Interfaces;
 using Eventra.EmailMicroservice.API.Services;
 using Eventra.EmailMicroservice.API.Services.Interfaces;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,27 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Connect to RabbitMQ
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<RegisterUserEventConsumer>();
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("email-service-queue", e =>
+        {
+            e.ConfigureConsumer<RegisterUserEventConsumer>(context);
+        });
+
+    });
+});
 
 //Use SQL server
 
